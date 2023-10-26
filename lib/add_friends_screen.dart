@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddFriendsScreen extends StatefulWidget {
   const AddFriendsScreen({super.key});
@@ -12,7 +13,7 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Friend'),
+        title: const Text('Add Friend'),
         centerTitle: true,
         backgroundColor: Colors.amber,
       ),
@@ -25,9 +26,14 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const CircleAvatar(
-                  backgroundColor: Colors.black,
-                  radius: 60.0,
+                InkWell(
+                  onTap: () {
+                    showMySheet();
+                  },
+                  child: const CircleAvatar(
+                    backgroundColor: Colors.black,
+                    radius: 60.0,
+                  ),
                 ),
                 const SizedBox(
                   height: 30.0,
@@ -81,5 +87,69 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> showMySheet() async {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            height: MediaQuery.of(context).size.height / 4,
+            width: MediaQuery.of(context).size.width,
+            decoration: const BoxDecoration(
+              color: Colors.amber,
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20.0),
+                topRight: Radius.circular(20.0),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                children: [
+                  const Text(
+                    'Pick your image',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 40.0,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          ImagePicker().pickImage(source: ImageSource.camera);
+                        },
+                        icon: const Icon(
+                          Icons.camera,
+                          size: 30.0,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 25.0,
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          ImagePicker().pickImage(
+                            source: ImageSource.gallery,
+                          );
+                        },
+                        icon: Icon(
+                          Icons.photo_album,
+                          size: 30.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }
