@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -9,6 +11,7 @@ class AddFriendsScreen extends StatefulWidget {
 }
 
 class _AddFriendsScreenState extends State<AddFriendsScreen> {
+  Uint8List? userImage;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,9 +33,12 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                   onTap: () {
                     showMySheet();
                   },
-                  child: const CircleAvatar(
-                    backgroundColor: Colors.black,
+                  child: CircleAvatar(
+                    //backgroundColor: Colors.black,
                     radius: 60.0,
+                    backgroundImage: userImage == null
+                        ? const AssetImage('assets/images/user.png')
+                        : MemoryImage(userImage!) as ImageProvider,
                   ),
                 ),
                 const SizedBox(
@@ -123,7 +129,9 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          ImagePicker().pickImage(source: ImageSource.camera);
+                          pickImageSource(ImageSource.camera).then((value) {
+                            Navigator.pop(context);
+                          });
                         },
                         icon: const Icon(
                           Icons.camera,
@@ -135,9 +143,9 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          ImagePicker().pickImage(
-                            source: ImageSource.gallery,
-                          );
+                          pickImageSource(ImageSource.gallery).then((value) {
+                            Navigator.pop(context);
+                          });
                         },
                         icon: Icon(
                           Icons.photo_album,
@@ -151,5 +159,16 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
             ),
           );
         });
+  }
+
+  Future<void> pickImageSource(ImageSource imageSource) async {
+    XFile? sourceImage = await ImagePicker().pickImage(source: imageSource);
+
+    if (sourceImage == null) {
+      return;
+    } else {
+      userImage = await sourceImage.readAsBytes();
+      setState(() {});
+    }
   }
 }
