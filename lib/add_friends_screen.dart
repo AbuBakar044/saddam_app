@@ -2,7 +2,9 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:saddam_app/models/friend_model.dart';
 
 class AddFriendsScreen extends StatefulWidget {
   const AddFriendsScreen({super.key});
@@ -14,6 +16,10 @@ class AddFriendsScreen extends StatefulWidget {
 class _AddFriendsScreenState extends State<AddFriendsScreen> {
   Uint8List? userImage;
   final _formKey = GlobalKey<FormState>();
+
+  final nameCtrl = TextEditingController();
+  final nmbrCtrl = TextEditingController();
+  final descCtrl = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,7 +57,9 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                     height: 30.0,
                   ),
                   TextFormField(
+                    controller: nameCtrl,
                     //added validator
+
                     validator: (value) {
                       if (value!.isEmpty) {
                         return '*please add name';
@@ -66,6 +74,7 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                     height: 30.0,
                   ),
                   TextFormField(
+                    controller: nmbrCtrl,
                     keyboardType: TextInputType.number,
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     //added validator
@@ -86,7 +95,9 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                     height: 30.0,
                   ),
                   TextFormField(
+                    controller: descCtrl,
                     maxLines: 10,
+
                     //added validator
                     validator: (value) {
                       if (value!.isEmpty) {
@@ -105,14 +116,8 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
                     onPressed: () {
                       //checked form current state
                       if (_formKey.currentState!.validate()) {
+                        saveFriendData();
                         //showed snackbar
-                        ScaffoldMessenger.of(context).showSnackBar(
-                         const  SnackBar(
-                            content: Text(
-                              'Form Validated',
-                            ),
-                          ),
-                        );
                       }
                     },
                     style: const ButtonStyle(
@@ -214,5 +219,35 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
           '........................... this is user Image ${userImage.toString()}');
       setState(() {});
     }
+  }
+
+  Future<void> saveFriendData() async {
+    var friendBox = await Hive.openBox<FriendModel>('friends');
+    var friendModel = FriendModel(
+      userImage,
+      nameCtrl.text,
+      nmbrCtrl.text,
+      descCtrl.text,
+    );
+
+    friendBox.add(friendModel).then((value) {
+      print('..................this is friend id $value');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Friend Saved Successfully',
+          ),
+        ),
+      );
+
+      nameCtrl.clear();
+      nmbrCtrl.clear();
+      descCtrl.clear();
+      userImage = null;
+
+      setState(() {
+        
+      });
+    });
   }
 }
