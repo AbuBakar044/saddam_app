@@ -222,7 +222,6 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
   }
 
   Future<void> saveFriendData() async {
-    var friendBox = await Hive.openBox<FriendModel>('friends');
     var friendModel = FriendModel(
       userImage,
       nameCtrl.text,
@@ -230,8 +229,13 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
       descCtrl.text,
     );
 
-    friendBox.add(friendModel).then((value) {
+    try {
+      var friendBox = await Hive.openBox<FriendModel>('friends');
+
+      friendBox.add(friendModel).then((value) {
       print('..................this is friend id $value');
+
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -245,9 +249,19 @@ class _AddFriendsScreenState extends State<AddFriendsScreen> {
       descCtrl.clear();
       userImage = null;
 
-      setState(() {
-        
-      });
+      setState(() {});
     });
+      
+    } on HiveError catch (message) {
+      ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+          content: Text(
+            message.toString(),
+          ),
+        ),
+      );
+    }
+
+    
   }
 }
