@@ -57,6 +57,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: const EdgeInsets.all(8.0),
                     child: ListTile(
                       tileColor: Colors.amber,
+                      onLongPress: () {
+                        showDeleteDialog(index);
+                      },
                       leading: CircleAvatar(
                         backgroundImage: MemoryImage(
                           friendsList[index].friendImage!,
@@ -82,4 +85,48 @@ class _HomeScreenState extends State<HomeScreen> {
   // Future<void> getAllFriends() async {
   //   print('...................${friendsList.length}');
   // }
+
+  Future<void> showDeleteDialog(int index) async {
+    await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Delete Friend'),
+            content: Text('Are you sure to delete your friend?'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  deleteFriend(index).then((value) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Friend Deleted Successfully',
+                        ),
+                      ),
+                    );
+                  });
+                },
+                child: Text(
+                  'Delete',
+                  style: TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
+  }
+
+  Future<void> deleteFriend(int index) async {
+    friendsList.removeAt(index);
+    await friendBox!.deleteAt(index);
+  }
 }
